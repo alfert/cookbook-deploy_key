@@ -34,3 +34,6 @@ attribute :group, :kind_of => String, :default => "root"
 attribute :mode, :default => 00600
 
 attribute :api_url, :kind_of => String, :default => nil
+
+# either deploy or ssh keys 
+attribute :key_type, :kind_of => Symbol, :default => :deploy 
