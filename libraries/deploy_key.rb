@@ -16,7 +16,24 @@ require 'json'
 require 'net/https'
 
 module DeployKey
+
   def url(path = '')
+    case new_resource.key_type
+      when :deploy then deploy_url(path)
+      when :ssh then ssh_url(path)
+      else fail "unknown key_type #{new_resource.key_type}"
+    end
+  end
+
+  def ssh_url(path = '')
+    URI.parse case self
+              when Chef::Provider::DeployKeyBitbucket then fail "not implemented yet"
+              when Chef::Provider::DeployKeyGithub    then fail "not implemented yet"
+              when Chef::Provider::DeployKeyGitlab    then "#{new_resource.api_url}/api/v3/user/keys#{path}"
+              end
+  end
+
+  def deploy_url(path = '')
     URI.parse case self
               when Chef::Provider::DeployKeyBitbucket then "https://bitbucket.org/api/1.0/repositories/#{new_resource.repo}/deploy-keys#{path}"
               when Chef::Provider::DeployKeyGithub    then "https://api.github.com/repos/#{new_resource.repo}/keys#{path}"
@@ -55,8 +72,10 @@ module DeployKey
     req = auth(req)
     req.body = body
     http = Net::HTTP.new(url.host, url.port)
-    http.use_ssl = true
-    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    if (url.scheme == "https") then
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    end
     http.request(req)
   end
 
