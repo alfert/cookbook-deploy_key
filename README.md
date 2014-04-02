@@ -39,6 +39,8 @@ Supported providers:
 * `owner`: The owner of the key files on disk. Defaults to `root`
 * `group`: The group of the key files on disk. Defaults to `root`
 * `mode`: The mode that will be passed on to chmod. Defaults to `0600`
+* `key_type`: The type of the key to be managed. Defaults to `:deploy`, other value: `ssh` for 
+   private SSH keys.
 
 # Actions
 
@@ -88,6 +90,25 @@ deploy_key "bitbucket_key" do
   group 'deploy'
   mode 00640
   action :add
+end
+```
+
+# An example for private ssh keys
+``` 
+deploy_key "joe@example.com" do
+  provider Chef::Provider::DeployKeyGitlab
+  
+  action :add
+  key_type :ssh
+  label "id_rsa"
+
+  api_url https://mygitlab.example.com
+  credentials({
+    :token => 'my private gitlab token'
+  })
+
+  path   '/home/joe/.ssh' 
+  owner  joe
 end
 ```
 
